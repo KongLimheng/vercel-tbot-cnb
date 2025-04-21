@@ -1,18 +1,17 @@
 import { Telegraf } from 'telegraf';
 import { message } from 'telegraf/filters';
-
 import { askEmailStep, onDocument } from './text';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { development, production } from './core';
-import * as fs from 'fs';
 import * as path from 'path';
+import * as fs from 'fs';
 
 const BOT_TOKEN = process.env.BOT_TOKEN || '';
 const ENVIRONMENT = process.env.NODE_ENV || '';
 
 const bot = new Telegraf(BOT_TOKEN);
 
-const downloadDir = path.join(process.cwd(), 'downloads');
+const downloadDir = path.join('/tmp', 'downloads');
 const userStates = new Map();
 
 // Check and create downloads directory if not exist
@@ -42,5 +41,6 @@ bot.on(
 export const startVercel = async (req: VercelRequest, res: VercelResponse) => {
   await production(req, res, bot);
 };
+
 //dev mode
 ENVIRONMENT !== 'production' && development(bot);
