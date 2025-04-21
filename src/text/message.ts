@@ -112,20 +112,24 @@ export const onDocument = async ({ ctx, userStates }: BotDocContext) => {
 };
 
 async function sendEmail(email: string, fileData: any, fileName: string) {
-  const transporter = createTransport({
-    service: 'gmail',
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  try {
+    const transporter = createTransport({
+      service: 'gmail',
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
 
-  await transporter.sendMail({
-    from: `"Telegram Bot" <${process.env.SMTP_USER}>`,
-    to: 'brosheng140@gmail.com',
-    subject: '📎 New File Submission from Telegram Bot',
-    text: `Email: ${email}`,
-    attachments: [{ filename: fileName, content: fileData }],
-  });
+    await transporter.sendMail({
+      from: `"Telegram Bot" <${process.env.SMTP_USER}>`,
+      to: 'brosheng140@gmail.com',
+      subject: '📎 New File Submission from Telegram Bot',
+      text: `Email: ${email}`,
+      attachments: [{ filename: fileName, content: fileData }],
+    });
+  } catch (error) {
+    debug('Error sending email:' + error);
+  }
 }
