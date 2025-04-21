@@ -11,13 +11,13 @@ const ENVIRONMENT = process.env.NODE_ENV || '';
 
 const bot = new Telegraf(BOT_TOKEN);
 
-const downloadDir = path.join('/tmp', 'downloads');
+// const downloadDir = path.join('/tmp', 'downloads');
 const userStates = new Map();
 
 // Check and create downloads directory if not exist
-if (!fs.existsSync(downloadDir)) {
-  fs.mkdirSync(downloadDir, { recursive: true });
-}
+// if (!fs.existsSync(downloadDir)) {
+//   fs.mkdirSync(downloadDir, { recursive: true });
+// }
 
 bot.start(async (ctx) => {
   userStates.clear();
@@ -32,8 +32,7 @@ bot.start(async (ctx) => {
 bot.on(message('text'), async (ctx) => await askEmailStep({ ctx, userStates }));
 bot.on(
   message('document'),
-  async (ctx) =>
-    await onDocument({ ctx, userStates, downloadPath: downloadDir }),
+  async (ctx) => await onDocument({ ctx, userStates }),
 );
 
 //prod mode (Vercel)

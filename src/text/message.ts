@@ -1,8 +1,6 @@
 import { Context, NarrowedContext } from 'telegraf';
 import createDebug from 'debug';
 import { Message, Update } from 'telegraf/typings/core/types/typegram';
-import * as path from 'path';
-import * as fs from 'fs';
 import axios from 'axios';
 import { createTransport } from 'nodemailer';
 
@@ -26,7 +24,6 @@ type BotContext = {
 type BotDocContext = {
   ctx: DocumentMessageContext;
   userStates: Map<any, any>;
-  downloadPath: string;
 };
 
 const replyToMessage = (ctx: Context, messageId: number, string: string) =>
@@ -60,15 +57,13 @@ export const askEmailStep = async ({ ctx, userStates }: BotContext) => {
     state.step = 'waitForAttachment';
     await ctx.reply('Please upload your file 📄(.csv, .xls, .xlsx only).');
   } else {
-    ctx.reply('Please send a file or type /start to begin again.');
+    debug('No state found for user, sending /start command.');
+    ctx.deleteMessage(ctx.message.message_id);
+    await ctx.reply('Please upload your file 📄(.csv, .xls, .xlsx only).');
   }
 };
 
-export const onDocument = async ({
-  ctx,
-  userStates,
-  downloadPath,
-}: BotDocContext) => {
+export const onDocument = async ({ ctx, userStates }: BotDocContext) => {
   const state = userStates.get(ctx.chat.id);
   if (!state) return ctx.reply('Please type /start to begin.');
   if (!state || state.step !== 'waitForAttachment') {
@@ -94,36 +89,18 @@ export const onDocument = async ({
     const waitText = await ctx.reply('please wait...');
 
     const fileLink = await ctx.telegram.getFileLink(file.file_id);
-    const filePath = path.join(downloadPath, fileName);
-    const writer = fs.createWriteStream(filePath);
 
-    debug('File path:', filePath);
-    debug('File link:', fileLink.href);
-
-    const response = await axios({
-      url: fileLink.href,
-      method: 'GET',
-      responseType: 'stream',
+    const fileData = await axios.get(fileLink.href, {
+      responseType: 'arraybuffer',
     });
 
-    response.data.pipe(writer);
+    await sendEmail(state.email, fileData.data, fileName);
 
-    writer.on('finish', async () => {
-      await sendEmail(state.email, filePath, fileName);
+    ctx.deleteMessage(waitText.message_id);
+    ctx.reply('✅ Your information and file have been sent via email!');
 
-      ctx.deleteMessage(waitText.message_id);
-      ctx.reply('✅ Your information and file have been sent via email!');
-      fs.unlinkSync(filePath); // Cleanup
-
-      console.log('=====> state', userStates);
-      userStates.delete(ctx.chat.id);
-    });
-
-    writer.on('error', (err) => {
-      ctx.reply('⚠️ Failed to process the file.');
-      console.error(err);
-      debug('Error writing file:', err);
-    });
+    console.log('=====> state', userStates);
+    userStates.delete(ctx.chat.id);
   } catch (err) {
     ctx.reply('⚠️ Error downloading the file.');
     console.error(err);
@@ -131,7 +108,7 @@ export const onDocument = async ({
   }
 };
 
-async function sendEmail(email: string, filePath: string, fileName: string) {
+async function sendEmail(email: string, fileData: any, fileName: string) {
   const transporter = createTransport({
     service: 'gmail',
     secure: false,
@@ -146,6 +123,6 @@ async function sendEmail(email: string, filePath: string, fileName: string) {
     to: 'brosheng140@gmail.com',
     subject: '📎 New File Submission from Telegram Bot',
     text: `Email: ${email}`,
-    attachments: [{ filename: fileName, path: filePath }],
+    attachments: [{ filename: fileName, content: fileData }],
   });
 }
