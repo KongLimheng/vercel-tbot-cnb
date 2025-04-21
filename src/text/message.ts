@@ -89,10 +89,13 @@ export const onDocument = async ({ ctx, userStates }: BotDocContext) => {
     const waitText = await ctx.reply('please wait...');
 
     const fileLink = await ctx.telegram.getFileLink(file.file_id);
+    debug('After get document');
 
     const fileData = await axios.get(fileLink.href, {
       responseType: 'arraybuffer',
     });
+
+    debug('After send Email');
 
     await sendEmail(state.email, fileData.data, fileName);
 

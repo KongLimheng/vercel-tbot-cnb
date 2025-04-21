@@ -35,6 +35,13 @@ bot.on(
   async (ctx) => await onDocument({ ctx, userStates }),
 );
 
+bot.on(message('photo'), async (ctx) => {
+  await ctx.deleteMessage(ctx.message.message_id);
+  await ctx.reply(
+    '❌ Image uploads are not allowed. Please upload only .csv, .xls, or .xlsx are allowed.',
+  );
+});
+
 //prod mode (Vercel)
 export const startVercel = async (req: VercelRequest, res: VercelResponse) => {
   await production(req, res, bot);
