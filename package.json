@@ -1,0 +1,33 @@
+{
+  "name": "telegram-bot-cnb",
+  "version": "1.1.0",
+  "description": "Telegram Bot",
+  "main": "src/index.ts",
+  "author": "Mark Pavlov (https://github.com/sollidy)",
+  "homepage": "https://github.com/sollidy/telegram-bot-vercel-boilerplate",
+  "dependencies": {
+    "@vercel/node": "^3.2.24",
+    "axios": "^1.8.4",
+    "dotenv-cli": "^7.4.2",
+    "nodemailer": "^6.10.1",
+    "telegraf": "^4.16.3"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.12",
+    "@types/node": "^22.8.6",
+    "@types/nodemailer": "^6.4.17",
+    "@vercel/ncc": "^0.38.2",
+    "debug": "^4.3.7",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "scripts": {
+    "dev": "dotenv -e .env -- nodemon -e ts -x ts-node src/index.ts",
+    "devWindows": "@powershell -Command $env:DEBUG='bot*';dotenv -- -- nodemon -e ts -x ts-node src/index.ts",
+    "build": "ncc build src/index.ts -o public -m",
+    "prettier": "prettier --write 'src/**/*.ts'",
+    "lint": "tsc --noemit"
+  }
+}
