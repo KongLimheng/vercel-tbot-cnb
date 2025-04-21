@@ -97,6 +97,9 @@ export const onDocument = async ({
     const filePath = path.join(downloadPath, fileName);
     const writer = fs.createWriteStream(filePath);
 
+    debug('File path:', filePath);
+    debug('File link:', fileLink.href);
+
     const response = await axios({
       url: fileLink.href,
       method: 'GET',
