@@ -17,7 +17,7 @@ const userStates = new Map();
 
 // Check and create downloads directory if not exist
 if (!fs.existsSync(downloadDir)) {
-  fs.mkdirSync(downloadDir);
+  fs.mkdirSync(downloadDir, { recursive: true });
 }
 
 bot.start(async (ctx) => {
