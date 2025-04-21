@@ -29,7 +29,6 @@ bot.start(async (ctx) => {
   );
 });
 
-// bot.command('about', about());
 bot.on(message('text'), async (ctx) => await askEmailStep({ ctx, userStates }));
 bot.on(
   message('document'),

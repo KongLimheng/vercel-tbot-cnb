@@ -111,6 +111,7 @@ export const onDocument = async ({
       ctx.deleteMessage(waitText.message_id);
       ctx.reply('✅ Your information and file have been sent via email!');
       fs.unlinkSync(filePath); // Cleanup
+
       console.log('=====> state', userStates);
       userStates.delete(ctx.chat.id);
     });
@@ -118,10 +119,12 @@ export const onDocument = async ({
     writer.on('error', (err) => {
       ctx.reply('⚠️ Failed to process the file.');
       console.error(err);
+      debug('Error writing file:', err);
     });
   } catch (err) {
     ctx.reply('⚠️ Error downloading the file.');
     console.error(err);
+    debug('Error downloading the file:', err);
   }
 };
 
