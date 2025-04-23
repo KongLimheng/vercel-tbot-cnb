@@ -3,8 +3,10 @@ import { message } from 'telegraf/filters';
 import { askEmailStep, onDocument } from './text';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { development, production } from './core';
-import * as path from 'path';
-import * as fs from 'fs';
+import { config } from 'dotenv';
+
+config();
+// Load environment variables from .env file
 
 const BOT_TOKEN = process.env.BOT_TOKEN || '';
 const ENVIRONMENT = process.env.NODE_ENV || '';
@@ -25,7 +27,8 @@ bot.start(async (ctx) => {
 
   await ctx.sendChatAction('typing');
   ctx.reply(
-    `Hello 🤚, ${ctx.message.from.first_name} ${ctx.message.from.last_name}! \n\nPlease enter your email address ✉️...`,
+    `Hello 🤚, ${ctx.message.from.first_name} ${ctx.message.from.last_name}! 
+    \n\nPlease enter your email address ✉️...`,
   );
 });
 

@@ -1,5 +1,4 @@
-import { Context, Telegraf } from 'telegraf';
-import { Update } from 'telegraf/typings/core/types/typegram';
+import { Telegraf } from 'telegraf';
 import createDebug from 'debug';
 
 const debug = createDebug('bot:dev');

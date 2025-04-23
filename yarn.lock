@@ -567,6 +567,16 @@ emoji-regex@^8.0.0:
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"
   integrity sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==
 
+env-var@^7.5.0:
+  version "7.5.0"
+  resolved "https://registry.npmjs.org/env-var/-/env-var-7.5.0.tgz#5f0c2d999d2997eaf7cf7f1437b3f857b865bf48"
+  integrity sha512-mKZOzLRN0ETzau2W2QXefbFjo5EF4yWq28OyKb9ICdeNhHJlOE/pHHnz4hdYJ9cNZXcJHo5xN4OT4pzuSHSNvA==
+
+envsafe@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.npmjs.org/envsafe/-/envsafe-2.0.3.tgz#cb88a9f750a67455638ebfc16f4cd5296bb5e1a0"
+  integrity sha512-51lek8h5btjXhXUDW//Pno7HPydM1WQzltOb1/ONRKdwB2QkfAURnN4Qn0cJ5LzGvX2Km1ReR2O3K3Bqq9sBMg==
+
 es-define-property@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz#983eb2f9a6724e9303f61addf011c72e09e0b0fa"
