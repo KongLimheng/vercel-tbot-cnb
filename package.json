@@ -3,9 +3,12 @@
   "version": "1.1.0",
   "description": "Telegram Bot",
   "main": "src/index.ts",
+  "license": "MIT",
+  "private": true,
   "author": "Mark Pavlov (https://github.com/sollidy)",
   "homepage": "https://github.com/sollidy/telegram-bot-vercel-boilerplate",
   "dependencies": {
+    "@telegraf/session": "^2.0.0-beta.7",
     "@vercel/node": "^3.2.24",
     "axios": "^1.8.4",
     "dotenv-cli": "^7.4.2",
@@ -26,7 +29,7 @@
     "typescript": "^5.6.3"
   },
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node public/index.js",
     "dev": "nodemon src/index.ts",
     "devWindows": "@powershell -Command $env:DEBUG='bot*';nodemon -e ts -x ts-node src/index.ts",
     "build": "ncc build src/index.ts -o public -m",

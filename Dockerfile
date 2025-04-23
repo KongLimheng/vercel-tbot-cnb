@@ -1,9 +1,16 @@
-FROM node:18-alpine
+FROM node:20.19.0-alpine
 
 WORKDIR /app
-COPY . .
 
-RUN npm install
-RUN npm run build || true
+# Copy dependencies files and install
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
-CMD ["npm", "start"]
+# Copy source files
+COPY tsconfig.json ./
+COPY src ./src
+
+# Build the TypeScript files
+RUN yarn build
+
+CMD ["yarn", "start"]
