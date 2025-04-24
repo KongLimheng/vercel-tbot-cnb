@@ -1,8 +1,10 @@
-import { Context, NarrowedContext } from 'telegraf';
+import { Context, Markup, NarrowedContext } from 'telegraf';
 import createDebug from 'debug';
 import { Message, Update } from 'telegraf/typings/core/types/typegram';
 import axios from 'axios';
 import { createTransport } from 'nodemailer';
+import { UserState } from '../types';
+import { inlineKeyboard } from 'telegraf/typings/markup';
 
 const debug = createDebug('bot:text:message');
 
@@ -18,29 +20,33 @@ type DocumentMessageContext = NarrowedContext<
 
 type BotContext = {
   ctx: TextMessageContext;
-  userStates: Map<any, any>;
+  userStates: Map<number, UserState>;
 };
 
 type BotDocContext = {
   ctx: DocumentMessageContext;
-  userStates: Map<any, any>;
+  userStates: Map<number, UserState>;
 };
 
-const replyToMessage = (ctx: Context, messageId: number, string: string) =>
-  ctx.reply(string, {
-    reply_parameters: { message_id: messageId },
-  });
+const inLineKeyBoard = Markup.keyboard([['/start']])
+  .resize()
+  .oneTime();
+
+const replyWithStart = (ctx: Context, string: string) =>
+  ctx.reply(string, inLineKeyBoard);
 
 export const askEmailStep = async ({ ctx, userStates }: BotContext) => {
-  const state = userStates.get(ctx.chat?.id);
+  const state = userStates.get(ctx.chat.id);
 
   if (!state) {
     debug('No state found for user, sending /start command.');
     ctx.deleteMessage(ctx.message.message_id);
-    return ctx.reply('Please type /start to begin.');
+    return replyWithStart(ctx, 'Please type /start to begin.');
   }
 
   const message = ctx.message;
+
+  console.log(userStates, '=====> state');
   if (state.step === 'askEmail') {
     const email = message.text.trim();
     const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -53,7 +59,6 @@ export const askEmailStep = async ({ ctx, userStates }: BotContext) => {
     }
 
     state.email = email;
-
     state.step = 'waitForAttachment';
     await ctx.reply('Please upload your file 📄(.csv, .xls, .xlsx only).');
   } else {
@@ -65,9 +70,9 @@ export const askEmailStep = async ({ ctx, userStates }: BotContext) => {
 
 export const onDocument = async ({ ctx, userStates }: BotDocContext) => {
   const state = userStates.get(ctx.chat.id);
-  if (!state) return ctx.reply('Please type /start to begin.');
+  if (!state) return replyWithStart(ctx, 'Please type /start to begin.');
   if (!state || state.step !== 'waitForAttachment') {
-    return ctx.reply('Please follow the process using /start.');
+    return replyWithStart(ctx, 'Please follow the process using /start.');
   }
 
   const file = ctx.message.document;
@@ -89,15 +94,12 @@ export const onDocument = async ({ ctx, userStates }: BotDocContext) => {
     const waitText = await ctx.reply('please wait...');
 
     const fileLink = await ctx.telegram.getFileLink(file.file_id);
-    debug('After get document');
 
     const fileData = await axios.get(fileLink.href, {
       responseType: 'arraybuffer',
     });
 
-    debug('After send Email');
-
-    await sendEmail(state.email, fileData.data, fileName);
+    if (state.email) await sendEmail(state.email, fileData.data, fileName);
 
     ctx.deleteMessage(waitText.message_id);
     ctx.reply('✅ Your information and file have been sent via email!');

@@ -3,7 +3,7 @@ import { Scenes, Telegraf } from 'telegraf';
 
 const debug = createDebug('bot:dev');
 
-const development = async (bot: Telegraf<Scenes.WizardContext>) => {
+const development = async (bot: Telegraf) => {
   const botInfo = (await bot.telegram.getMe()).username;
 
   debug('Bot runs in development mode');
