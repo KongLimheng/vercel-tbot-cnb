@@ -1,32 +1,9 @@
-import { Context, Markup, NarrowedContext } from 'telegraf';
+import { Context, Markup } from 'telegraf';
 import createDebug from 'debug';
-import { Message, Update } from 'telegraf/typings/core/types/typegram';
 import axios from 'axios';
 import { createTransport } from 'nodemailer';
-import { UserState } from '../types';
-import { inlineKeyboard } from 'telegraf/typings/markup';
-
+import { BotContext, BotDocContext, UserState } from '../types';
 const debug = createDebug('bot:text:message');
-
-type TextMessageContext = NarrowedContext<
-  Context<Update>,
-  Update.MessageUpdate<Message.TextMessage>
->;
-
-type DocumentMessageContext = NarrowedContext<
-  Context<Update>,
-  Update.MessageUpdate<Message.DocumentMessage>
->;
-
-type BotContext = {
-  ctx: TextMessageContext;
-  userStates: Map<number, UserState>;
-};
-
-type BotDocContext = {
-  ctx: DocumentMessageContext;
-  userStates: Map<number, UserState>;
-};
 
 const inLineKeyBoard = Markup.keyboard([['/start']])
   .resize()
@@ -36,10 +13,11 @@ const replyWithStart = (ctx: Context, string: string) =>
   ctx.reply(string, inLineKeyBoard);
 
 export const askEmailStep = async ({ ctx, userStates }: BotContext) => {
-  const state = userStates.get(ctx.chat.id);
+  const chatId = ctx.chat.id;
+  const state = userStates.get(chatId);
 
   if (!state) {
-    debug('No state found for user, sending /start command.');
+    console.log('No state found for user, sending /start command.');
     ctx.deleteMessage(ctx.message.message_id);
     return replyWithStart(ctx, 'Please type /start to begin.');
   }
@@ -62,7 +40,7 @@ export const askEmailStep = async ({ ctx, userStates }: BotContext) => {
     state.step = 'waitForAttachment';
     await ctx.reply('Please upload your file 📄(.csv, .xls, .xlsx only).');
   } else {
-    debug('No state found for user, sending /start command.');
+    console.log('No state found for user, sending /start command.');
     ctx.deleteMessage(ctx.message.message_id);
     await ctx.reply('Please upload your file 📄(.csv, .xls, .xlsx only).');
   }

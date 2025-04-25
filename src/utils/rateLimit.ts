@@ -1,5 +1,7 @@
 import Redis from 'ioredis';
-import { Context } from 'telegraf';
+import { Context, MiddlewareFn } from 'telegraf';
+import { BotContext, BotDocContext } from '../types';
+import { Update } from 'telegraf/typings/core/types/typegram';
 
 interface RateLimitState {
   lastAction: number;
@@ -108,19 +110,40 @@ export class InMemoryRateLimiter implements IRateLimiter {
   private userMap = new Map<number, RateLimitState>();
 
   async get(chatId: number): Promise<RateLimitInfo> {
-    const now = Date.now();
-    const state = userRateLimit.get(chatId);
-    console.log(state, '=====> state rate');
-    if (!state) return { isLimited: false };
+    // const now = Date.now();
+    // const state = userRateLimit.get(chatId);
+    // console.log(state, '=====> state rate');
+    // if (!state) return { isLimited: false };
 
-    const coolDown = getCoolDown(state.strikeCount);
+    // const coolDown = getCoolDown(state.strikeCount);
+    // const elapsed = now - state.lastAction;
+    // console.log(coolDown, '====', elapsed);
+    // if (elapsed < coolDown) {
+    //   const remainingMs = coolDown - elapsed;
+    //   return {
+    //     isLimited: true,
+    //     remainingMs,
+    //     strikeCount: state.strikeCount,
+    //   };
+    // }
+
+    // return { isLimited: false };
+    const now = Date.now();
+    const state = this.userMap.get(chatId);
+
+    if (!state) return { isLimited: false };
+    if (now - state.lastAction > STRIKE_RESET_MS) {
+      this.userMap.set(chatId, { lastAction: now, strikeCount: 0 });
+      return { isLimited: false };
+    }
+
+    const cooldown = getCoolDown(state.strikeCount);
     const elapsed = now - state.lastAction;
-    console.log(coolDown, '====', elapsed);
-    if (elapsed < coolDown) {
-      const remainingMs = coolDown - elapsed;
+
+    if (elapsed < cooldown) {
       return {
         isLimited: true,
-        remainingMs,
+        remainingMs: cooldown - elapsed,
         strikeCount: state.strikeCount,
       };
     }
@@ -134,7 +157,7 @@ export class InMemoryRateLimiter implements IRateLimiter {
     this.userMap.set(chatId, { lastAction: now, strikeCount });
   }
   async reset(chatId: number): Promise<void> {
-    userRateLimit.set(chatId, { lastAction: Date.now(), strikeCount: 0 });
+    this.userMap.set(chatId, { lastAction: Date.now(), strikeCount: 0 });
   }
 }
 
